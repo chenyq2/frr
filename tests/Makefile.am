@@ -22,6 +22,13 @@ else
 TESTS_BGPD =
 endif
 
+if ISISD
+TESTS_ISISD = \
+	isisd/test_fuzz_isis_tlv
+else
+TESTS_ISISD =
+endif
+
 if ENABLE_BGP_VNC
 BGP_VNC_RFP_LIB=@top_builddir@/$(LIBRFP)/librfp.a
 else
@@ -46,7 +53,8 @@ check_PROGRAMS = \
 	lib/test_timer_performance \
 	lib/cli/test_cli \
 	lib/cli/test_commands \
-	$(TESTS_BGPD)
+	$(TESTS_BGPD) \
+	$(TESTS_ISISD)
 
 ../vtysh/vtysh_cmd.c:
 	$(MAKE) -C ../vtysh vtysh_cmd.c
@@ -64,7 +72,8 @@ BUILT_SOURCES = lib/cli/test_commands_defun.c
 noinst_HEADERS = \
 	./helpers/c/prng.h \
 	./helpers/c/tests.h \
-	./lib/cli/common_cli.h
+	./lib/cli/common_cli.h \
+	./isisd/test_fuzz_isis_tlv_tests.h
 
 lib_test_buffer_SOURCES = lib/test_buffer.c
 lib_test_checksum_SOURCES = lib/test_checksum.c
@@ -93,9 +102,11 @@ bgpd_test_capability_SOURCES = bgpd/test_capability.c
 bgpd_test_ecommunity_SOURCES = bgpd/test_ecommunity.c
 bgpd_test_mp_attr_SOURCES = bgpd/test_mp_attr.c
 bgpd_test_mpath_SOURCES = bgpd/test_mpath.c
+isisd_test_fuzz_isis_tlv_SOURCES = isisd/test_fuzz_isis_tlv.c
 
 ALL_TESTS_LDADD = ../lib/libfrr.la @LIBCAP@
 BGP_TEST_LDADD = ../bgpd/libbgp.a $(BGP_VNC_RFP_LIB) $(ALL_TESTS_LDADD) -lm
+ISISD_TEST_LDADD = ../isisd/libisis.a $(ALL_TESTS_LDADD)
 
 lib_test_buffer_LDADD = $(ALL_TESTS_LDADD)
 lib_test_checksum_LDADD = $(ALL_TESTS_LDADD)
@@ -119,6 +130,7 @@ bgpd_test_capability_LDADD = $(BGP_TEST_LDADD)
 bgpd_test_ecommunity_LDADD = $(BGP_TEST_LDADD)
 bgpd_test_mp_attr_LDADD = $(BGP_TEST_LDADD)
 bgpd_test_mpath_LDADD = $(BGP_TEST_LDADD)
+isisd_test_fuzz_isis_tlv_SOURCES = $(ISISD_TEST_LDADD)
 
 EXTRA_DIST = \
     runtests.py \
@@ -129,6 +141,7 @@ EXTRA_DIST = \
     bgpd/test_mpath.py \
     helpers/python/frrsix.py \
     helpers/python/frrtest.py \
+    isisd/isisd_test_fuzz_isis_tlv.py \
     lib/cli/test_commands.in \
     lib/cli/test_commands.py \
     lib/cli/test_commands.refout \
